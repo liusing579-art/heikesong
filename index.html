@@ -186,13 +186,14 @@ html, body {
   --transition-bounce: 0.3s cubic-bezier(0.34,1.56,0.64,1);
   --transition-fast: 0.2s cubic-bezier(0.4,0,0.2,1);
 }
-#bg-layer{position:absolute;top:0;left:0;width:375px;height:812px;z-index:0;background:radial-gradient(ellipse at 70% 20%,rgba(255,248,235,0.6) 0%,transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(245,230,211,0.4) 0%,transparent 50%),var(--cozy-warm);transition:background 1.5s ease}
+#bg-layer{position:absolute;top:0;left:0;width:375px;height:812px;z-index:1;background:radial-gradient(ellipse at 70% 20%,rgba(255,248,235,0.6) 0%,transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(245,230,211,0.4) 0%,transparent 50%),var(--cozy-warm);transition:background 1.5s ease}
 #bg-layer::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none}
 #scanlines{display:none}
 #phone-frame{background:var(--cozy-cream)}
-#game-content-wrapper{position:absolute;top:0;left:0;width:375px;height:812px;overflow:hidden}
-#main-game{position:absolute;top:0;left:0;width:375px;height:812px}
-#game-container{position:relative;z-index:10;width:375px;height:812px;display:flex;flex-direction:column;padding:8px 12px 12px}
+#game-content-wrapper{position:absolute;top:0;left:0;width:375px;height:812px;overflow:hidden;background:transparent;pointer-events:none}
+#game-content-wrapper>*{pointer-events:auto}
+#main-game{position:absolute;top:0;left:0;width:375px;height:812px;background:transparent}
+#game-container{position:relative;z-index:10;width:375px;height:812px;display:flex;flex-direction:column;padding:8px 12px 12px;background:transparent}
 #title-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;margin-bottom:4px;flex-shrink:0}
 #game-title{font-family:var(--font-display);font-size:0.95rem;color:#ffffff;letter-spacing:0.08em;opacity:0.85}
 #title-actions{display:flex;gap:6px}
@@ -613,8 +614,18 @@ class UIController {
       this.mediaContainer.appendChild(row);
     }
     if (event.video) { const video = document.createElement('video'); video.src = event.video; video.controls = true; video.playsInline = true; this.mediaContainer.appendChild(video); }
-    if (event.background) { const bg = document.getElementById('bg-layer'); bg.style.background = `#c0c0c0 url(${event.background}) center/cover no-repeat`; }
-    else if (event.images) { document.getElementById('bg-layer').style.background = ''; }
+    if (event.background) {
+      const bg = document.getElementById('bg-layer');
+      bg.style.backgroundImage = 'url("' + event.background + '")';
+      bg.style.backgroundColor = '#c0c0c0';
+      bg.style.backgroundSize = 'cover';
+      bg.style.backgroundPosition = 'center';
+      bg.style.backgroundRepeat = 'no-repeat';
+    } else if (event.images) {
+      const bg = document.getElementById('bg-layer');
+      bg.style.backgroundImage = '';
+      bg.style.backgroundColor = '';
+    }
     if (event.bgm) { switchBGM(event.bgm); }
   }
 
