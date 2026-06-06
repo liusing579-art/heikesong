@@ -6,6 +6,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preload" as="video" href="intro.mp4">
+<link rel="preload" as="video" href="prologue.mp4">
 <title>导员，你听我狡辩！——第一案：消失的晚自习</title>
 <style>
 
@@ -311,8 +313,12 @@ html, body {
 
     <!-- 视频启动页 -->
     <div id="game-start-cover">
+        <div id="cover-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;background:#3E2C20;">
+            <div style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:rgba(255,255,255,0.5);font-size:14px;letter-spacing:0.1em;">加载中...</div>
+        </div>
         <video id="cover-video" autoplay loop muted playsinline webkit-playsinline
                x5-video-player-type="h5" x5-video-orientation="portrait"
+               preload="auto"
                style="background:#3E2C20;">
             <source src="intro.mp4" type="video/mp4">
         </video>
@@ -323,7 +329,7 @@ html, body {
 
     <!-- 序幕视频叠加层（点击开始后播放） -->
     <div id="prologue-overlay">
-        <video id="prologue-video" src="prologue.mp4" playsinline webkit-playsinline></video>
+        <video id="prologue-video" src="prologue.mp4" playsinline webkit-playsinline preload="auto"></video>
         <div id="prologue-text-area">
             <p class="prologue-line">周五晚上7点，辅导员办公室。<br>窗外天色渐暗，你正准备收拾东西下班。</p>
             <p class="prologue-line">手机屏幕亮起：来电显示"王离谱"。</p>
@@ -982,14 +988,51 @@ document.addEventListener('DOMContentLoaded', () => {
     createEngine();
     resizeGame();
 
-    // 移动端视频自动播放兼容
+    // 视频预加载：等待 cover 视频可播放后再显示按钮
     var cv = document.getElementById('cover-video');
+    var coverLoading = document.getElementById('cover-loading');
+    var videoStartBtn = document.getElementById('start-game-btn');
     if (cv) {
-      cv.play().then(function(){ console.log('视频播放成功'); }).catch(function(){
-        console.log('视频自动播放被阻，显示按钮');
-        cv.style.display = 'none';
+      // 初始隐藏按钮，显示加载提示
+      if (videoStartBtn) videoStartBtn.style.display = 'none';
+
+      var onVideoReady = function() {
+        if (coverLoading) coverLoading.style.display = 'none';
+        if (videoStartBtn) videoStartBtn.style.display = '';
+        // 尝试自动播放，若被阻止按钮仍在
+        cv.play().then(function(){ console.log('视频播放成功'); }).catch(function(){
+          console.log('视频自动播放被阻，显示按钮');
+        });
+      };
+
+      // 视频已足够数据可播放
+      if (cv.readyState >= 3) {
+        onVideoReady();
+      } else {
+        cv.addEventListener('canplaythrough', onVideoReady, { once: true });
+        cv.addEventListener('loadeddata', onVideoReady, { once: true });
+      }
+
+      // 加载失败也显示按钮
+      cv.addEventListener('error', function() {
+        if (coverLoading) coverLoading.style.display = 'none';
+        if (videoStartBtn) { videoStartBtn.style.display = ''; }
         document.getElementById('game-start-cover').style.background = '#3E2C20';
-      });
+        cv.style.display = 'none';
+      }, { once: true });
+
+      // 超时兜底：5秒后无论是否加载完成都显示按钮 + 静态背景
+      setTimeout(function() {
+        if (coverLoading) coverLoading.style.display = 'none';
+        if (videoStartBtn) {
+          if (videoStartBtn.style.display === 'none') {
+            videoStartBtn.style.display = '';
+            // 视频未能加载，设置静态背景
+            document.getElementById('game-start-cover').style.background = '#3E2C20';
+            cv.style.display = 'none';
+          }
+        }
+      }, 5000);
     }
 
     // 开始按钮点击事件 — 淡出视频封面，进入游戏
