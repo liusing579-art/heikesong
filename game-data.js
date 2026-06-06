@@ -624,7 +624,10 @@ const GAME_DATA = {
         { src: "advisor-img.webp", class: "char-right" }
       ] },
     { type: "text", character: "lisiran", text: `喂？导员您好……`,
-      background: "office-bg.webp" },
+      background: "office-bg.webp",
+      images: [
+        { src: "ai.webp", class: "char-left-standalone" }
+      ] },
     { type: "text", character: "advisor",
       text: `李思然同学，我是王离谱的辅导员。我想跟你说三件事。第一，这个男生为了今晚见你，编了一个关于"觉醒AI"的完整故事，逻辑闭环能力相当不错，我觉得你们人文学院辩论队应该考虑招他进去。第二，他上学期高数考了89分，脑子很聪明。第三——如果他今晚跟你聊《白夜》的时候又说些奇怪的话，你多担待。他不是在胡说八道，他只是太在乎了，怕说错话。`,
       background: "office-bg.webp",
@@ -633,7 +636,10 @@ const GAME_DATA = {
       ] },
     { type: "text", character: "lisiran",
       text: `知道了导员。谢谢您。其实——我觉得他还挺有趣的。`,
-      background: "office-bg.webp" },
+      background: "office-bg.webp",
+      images: [
+        { src: "ai.webp", class: "char-left-standalone" }
+      ] },
     { type: "text", character: "wang",
       text: `导员你居然爆我期末成绩！！还说我看《白夜》！！！我的人设全没了！！！`,
       background: "office-bg.webp",
@@ -754,7 +760,10 @@ const GAME_DATA = {
     { type: "label", id: "ending_C" },
     { type: "text", character: "advisor",
       text: `王离谱！！！你到底是来上学的还是来演小品的！！！`,
-      background: "office-bg.webp" },
+      background: "office-bg.webp",
+      images: [
+        { src: "advisor-img.webp", class: "char-right" }
+      ] },
     { type: "text", character: "narrator",
       text: `电话那头吓得直接挂断。你对着忙音继续喊了三十秒才发现。\n\n第二天校长信箱收到一封匿名信：\n"建议给辅导员开设情绪管理培训课程。"\n\n你看完信，血压又上来了。`,
       background: "office-bg.webp" ,
