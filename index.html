@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>导员，你听我狡辩！——第一案：消失的晚自习</title>
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ============================================================
+   PHONE FRAME - 375x812 固定设计稿，自适应缩放
+   ============================================================ */
+html, body {
+    margin: 0; padding: 0;
+    background: #000;
+    overflow: hidden;
+    height: 100vh; width: 100vw;
+}
+#phone-frame {
+    position: absolute;
+    width: 375px;
+    height: 812px;
+    transform-origin: top left;
+    background: var(--bg-deep);
+    overflow: hidden;
+}
+/* 所有内部元素基于 375x812 坐标系统 */
+
+/* ============================================================
+   START PAGE - 375x812 固定坐标 (手机视频启动页)
+   ============================================================ */
+#game-start-cover {
+    position: absolute;
+    top: 0; left: 0;
+    width: 375px;
+    height: 812px;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+#cover-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 375px;
+    height: 812px;
+    object-fit: cover;
+    z-index: 1;
+}
+#cover-btn-area {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+#start-game-btn {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'STHeiti', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #3d2a1a;
+    background-color: #fcf3da;
+    border: 4px solid #654321;
+    border-radius: 16px;
+    box-shadow:
+        0 4px 0 #4a2f14,
+        0 6px 12px rgba(0,0,0,0.4);
+    padding: 10px 30px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    animation: btn-pulse 2s infinite ease-in-out;
+}
+@keyframes btn-pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+#start-game-btn:active {
+    transform: scale(0.9);
+    box-shadow: 0 1px 0 #4a2f14;
+}
+
+/* ============================================================
+   PROLOGUE OVERLAY - 序幕视频 + 文字（开始游戏后播放）
+   ============================================================ */
+#prologue-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 375px;
+    height: 812px;
+    z-index: 10000;
+    background: #000;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+#prologue-overlay.active {
+    display: flex;
+}
+#prologue-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 375px;
+    height: 812px;
+    object-fit: cover;
+    z-index: 1;
+}
+#prologue-text-area {
+    position: relative;
+    z-index: 2;
+    width: 320px;
+    text-align: center;
+    pointer-events: none;
+    padding-bottom: 100px;
+}
+#prologue-text-area .prologue-line {
+    font-family: 'STKaiti','KaiTi','STSong','SimSun',serif;
+    font-size: 20px;
+    line-height: 2;
+    color: #fff8ee;
+    text-shadow: 0 0 12px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.6);
+    letter-spacing: 0.06em;
+    margin: 0 0 12px;
+    opacity: 0;
+}
+#prologue-overlay.active .prologue-line {
+    animation: prologueFadeIn 1.2s ease forwards;
+}
+#prologue-overlay.active .prologue-line:nth-child(1) { animation-delay: 0.3s; }
+#prologue-overlay.active .prologue-line:nth-child(2) { animation-delay: 2.0s; }
+#prologue-overlay.active .prologue-line:nth-child(3) { animation-delay: 3.6s; }
+#prologue-overlay.active .prologue-line:nth-child(4) { animation-delay: 5.4s; }
+@keyframes prologueFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+#prologue-skip {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 30px;
+    padding: 8px 24px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s;
+}
+#prologue-overlay.active #prologue-skip {
+    animation: prologueFadeIn 1s 6.5s ease forwards;
+}
+#prologue-skip:hover {
+    color: #fff;
+    border-color: #fff;
+    background: rgba(0,0,0,0.5);
+}
+
+:root {
+  --cozy-cream: #FDF6EC; --cozy-warm: #F5E6D3; --cozy-khaki: #C4A882;
+  --cozy-brown: #5C4033; --cozy-dark: #3E2C20;
+  --sage-green: #9CAF88; --clay-red: #D4836A;
+  --bg-deep: #F5E6D3; --bg-surface: #FDF6EC; --bg-dialog: rgba(253,246,236,0.96);
+  --text-primary: #3E2C20; --text-dim: #8B7355; --text-system: #6B8E6B;
+  --accent-amber: #C4A882; --accent-gold: #D4A854; --danger-red: #D4836A;
+  --authority-blue: #7B8D6E; --acting-purple: #B8A088;
+  --wang-yellow: #E8D5B0; --lisiran-sky: #C5D5C0; --roommate-green: #C5D0B0;
+  --border-glow: rgba(196,168,130,0.3);
+  --shadow-dialog: 0 2px 12px rgba(92,64,51,0.15), 0 0 40px rgba(245,230,211,0.4);
+  --shadow-paper: 0 1px 4px rgba(92,64,51,0.1), 0 2px 8px rgba(92,64,51,0.08);
+  --font-display: 'STKaiti','KaiTi','STSong','SimSun',serif;
+  --font-body: 'PingFang SC','Microsoft YaHei','STSong','SimSun',sans-serif;
+  --font-mono: 'Consolas','Courier New',monospace;
+  --transition-smooth: 0.35s cubic-bezier(0.4,0,0.2,1);
+  --transition-bounce: 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  --transition-fast: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+#bg-layer{position:absolute;top:0;left:0;width:375px;height:812px;z-index:0;background:radial-gradient(ellipse at 70% 20%,rgba(255,248,235,0.6) 0%,transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(245,230,211,0.4) 0%,transparent 50%),var(--cozy-warm);transition:background 1.5s ease}
+#bg-layer::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none}
+#scanlines{display:none}
+#phone-frame{background:var(--cozy-cream)}
+#game-content-wrapper{position:absolute;top:0;left:0;width:375px;height:812px;overflow:hidden}
+#main-game{position:absolute;top:0;left:0;width:375px;height:812px}
+#game-container{position:relative;z-index:10;width:375px;height:812px;display:flex;flex-direction:column;padding:8px 12px 12px}
+#title-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;margin-bottom:4px;flex-shrink:0}
+#game-title{font-family:var(--font-display);font-size:0.95rem;color:#ffffff;letter-spacing:0.08em;opacity:0.85}
+#title-actions{display:flex;gap:6px}
+.title-btn{background:var(--cozy-cream);border:1.5px solid var(--cozy-khaki);color:var(--cozy-brown);padding:4px 10px;font-size:0.7rem;font-family:var(--font-display);cursor:pointer;border-radius:10px;transition:all var(--transition-bounce);letter-spacing:0.04em;box-shadow:var(--shadow-paper)}
+.title-btn:hover{background:var(--cozy-warm);border-color:var(--cozy-brown);transform:scale(1.05)}
+#stats-bar{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(253,246,236,0.85);border:1.5px dashed var(--cozy-khaki);border-radius:10px;flex-shrink:0;box-shadow:var(--shadow-paper)}
+.stat-group{display:flex;flex-direction:column;gap:3px}
+.stat-item{display:flex;align-items:center;gap:4px}
+.stat-icon{font-size:1.4rem;text-align:center;flex-shrink:0;transition:transform var(--transition-bounce)}
+.stat-label{font-size:0.9rem;color:var(--text-dim);letter-spacing:0.04em;flex-shrink:0;font-family:var(--font-display);font-weight:bold}
+.stat-value{font-size:1.1rem;font-family:var(--font-display);color:var(--cozy-brown);text-align:right;flex-shrink:0;font-weight:bold}
+.stat-bar-wrap{flex:1;height:12px;background:rgba(196,168,130,0.2);border-radius:6px;overflow:hidden;position:relative;min-width:22px;border:1px solid rgba(196,168,130,0.3)}
+.stat-bar-fill{height:100%;border-radius:6px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1),background 0.4s}
+.stat-bar-fill.lipudicity{background:linear-gradient(90deg,#E8D5B0,#E8A840,#D4836A);box-shadow:inset 0 1px 2px rgba(255,255,255,0.4)}
+.stat-bar-fill.blood-pressure{background:linear-gradient(90deg,#D4836A,#D45050,#C03030);box-shadow:inset 0 1px 2px rgba(255,200,200,0.4)}
+.stat-bar-fill.acting{background:linear-gradient(90deg,#C4A882,#B89A70,#9CAF88);box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)}
+.stat-bar-fill.authority{background:linear-gradient(90deg,#9CAF88,#7B8D6E,#5C4033);box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)}
+@keyframes dangerPulse{0%,100%{box-shadow:inset 0 1px 2px rgba(255,255,255,0.3)}50%{box-shadow:inset 0 1px 4px rgba(212,131,106,0.6)}}
+.stat-bar-wrap.danger .stat-bar-fill{animation:dangerPulse 0.8s infinite}
+#scene-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:20px;margin:4px 0}
+#media-container{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2}
+#media-container img,#media-container video{max-width:85%;max-height:85%;border-radius:6px;box-shadow:0 0 20px rgba(0,0,0,0.6);animation:mediaFadeIn 0.5s ease-out}
+#media-container .dual-row{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:100%;padding:8px}
+#media-container .dual-row img{max-width:none;max-height:none;border-radius:6px;box-shadow:0 0 20px rgba(0,0,0,0.6);animation:mediaFadeIn 0.5s ease-out}
+#media-container .dual-row .char-left{width:38%;object-fit:contain;align-self:flex-end}
+#media-container .dual-row .intro-right{width:58%;object-fit:contain;align-self:center}
+#media-container .dual-row .char-right{width:60%;max-height:none;object-fit:contain;position:absolute;bottom:-16px;right:4px;z-index:15;pointer-events:none}
+#media-container .dual-row .char-left-standalone{width:60%;max-height:none;object-fit:contain;position:absolute;bottom:-16px;left:4px;z-index:15;pointer-events:none}
+#media-container .dual-row .char-left-blend{width:40%;max-height:none;object-fit:contain;position:absolute;bottom:-16px;left:4px;z-index:15;pointer-events:none;mix-blend-mode:multiply;filter:brightness(1.05)}
+#media-container .dual-row .char-center{max-width:70%;max-height:70%;object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;pointer-events:none}
+@keyframes mediaFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+/* === 对话框 === */
+#dialog-area{flex-shrink:0;background:var(--cozy-cream);border:2px solid var(--cozy-khaki);border-radius:12px;padding:12px 14px 10px;position:relative;box-shadow:var(--shadow-paper);min-height:85px;transition:all var(--transition-smooth)}
+#dialog-area.wang{background:rgba(255,245,225,0.95);border-color:var(--cozy-khaki)}
+#dialog-area.advisor{background:var(--cozy-warm);border-color:var(--cozy-brown)}
+#dialog-area.narrator{background:#E8EEF2;border:1.5px dashed #A0B0B8}
+#dialog-area.lisiran{background:#F0F5F0;border-color:var(--sage-green)}
+#character-tag{display:inline-block;font-family:var(--font-display);font-size:0.7rem;padding:3px 12px;border-radius:4px;margin-bottom:6px;letter-spacing:0.05em}
+#character-tag.wang{background:rgba(232,213,176,0.55);color:var(--cozy-dark)}
+#character-tag.advisor{background:rgba(196,168,130,0.3);color:var(--cozy-dark)}
+#character-tag.narrator{background:rgba(156,175,136,0.25);color:#4A5A4A;font-style:italic}
+#character-tag.lisiran{background:rgba(156,175,136,0.2);color:var(--sage-green)}
+#character-tag.roommate{background:rgba(197,208,176,0.3);color:#5A6A50}
+#dialog-text{font-size:0.84rem;line-height:1.75;min-height:3em;color:var(--cozy-dark);letter-spacing:0.03em;font-family:var(--font-body)}
+#dialog-area.narrator #dialog-text{color:#4A4A4A;font-style:italic}
+#dialog-text .cursor-blink{display:inline-block;width:2px;height:1.1em;background:var(--cozy-brown);margin-left:2px;animation:cursorBlink 0.7s infinite;vertical-align:text-bottom}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+#continue-hint{position:absolute;bottom:8px;right:18px;font-size:0.65rem;color:var(--cozy-khaki);opacity:0;transition:opacity 0.3s;letter-spacing:0.05em;pointer-events:none;font-family:var(--font-display)}
+#continue-hint.visible{opacity:0.6;animation:hintPulse 2s infinite}
+@keyframes hintPulse{0%,100%{opacity:0.4}50%{opacity:0.8}}
+#choices-overlay{position:absolute;bottom:0;left:0;right:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px 14px;z-index:20;pointer-events:none;opacity:0;transform:translateY(16px);transition:all var(--transition-smooth)}
+#choices-overlay.active{opacity:1;transform:translateY(0);pointer-events:auto}
+.choice-btn{display:block;width:100%;padding:12px 16px;background:var(--cozy-cream);border:1.5px solid var(--cozy-khaki);border-radius:8px 3px 8px 3px;color:var(--cozy-brown);font-family:var(--font-display);font-size:0.8rem;text-align:left;cursor:pointer;letter-spacing:0.04em;position:relative;box-shadow:1px 2px 4px rgba(92,64,51,0.08);transition:all var(--transition-bounce)}
+.choice-btn:hover{background:var(--cozy-warm);border-color:var(--cozy-brown);box-shadow:2px 3px 8px rgba(92,64,51,0.15);transform:translateX(3px) scale(1.01)}
+.choice-btn:active{transform:scale(0.97)}
+.choice-btn .choice-number{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;background:var(--cozy-warm);color:var(--cozy-brown);font-size:0.65rem;margin-right:10px;font-family:var(--font-display);font-weight:bold;border:1px solid var(--cozy-khaki)}
+#ending-screen{position:absolute;top:0;left:0;width:375px;height:812px;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.8s,visibility 0.8s;text-align:center;padding:30px;background-size:cover;background-position:center;background-repeat:no-repeat}
+#ending-screen::before{content:'';position:absolute;inset:0;background:rgba(245,230,211,0.92);z-index:0}
+#ending-screen>*{position:relative;z-index:1}
+#ending-screen.active{opacity:1;visibility:visible}
+#ending-screen .ending-grade{font-family:var(--font-display);font-size:2.2rem;margin-bottom:12px;letter-spacing:0.1em}
+#ending-screen .ending-title{font-family:var(--font-display);font-size:1.3rem;color:var(--cozy-brown);margin-bottom:24px;letter-spacing:0.08em}
+#ending-screen .ending-text{font-size:0.78rem;line-height:1.9;color:var(--cozy-dark);max-width:300px;white-space:pre-line}
+#ending-screen .ending-stats{margin-top:20px;font-size:0.7rem;color:var(--text-dim);font-family:var(--font-display)}
+#ending-restart-btn{margin-top:32px;padding:10px 36px;background:var(--cozy-warm);border:2px solid var(--cozy-khaki);color:var(--cozy-brown);font-family:var(--font-display);font-size:0.95rem;letter-spacing:0.08em;cursor:pointer;border-radius:8px;transition:all var(--transition-bounce);box-shadow:var(--shadow-paper)}
+#ending-restart-btn:hover{background:var(--cozy-cream);border-color:var(--cozy-brown);transform:scale(1.05)}
+#save-modal{position:absolute;top:0;left:0;width:375px;height:812px;z-index:80;display:flex;align-items:center;justify-content:center;background:rgba(92,64,51,0.5);opacity:0;visibility:hidden;transition:all 0.3s;backdrop-filter:blur(6px)}
+#save-modal.active{opacity:1;visibility:visible}
+#save-modal .modal-inner{background:var(--cozy-cream);border:2px solid var(--cozy-khaki);border-radius:12px;padding:20px;width:290px;box-shadow:0 4px 16px rgba(92,64,51,0.2)}
+#save-modal h3{font-family:var(--font-display);color:var(--cozy-brown);font-size:1.1rem;letter-spacing:0.08em;margin-bottom:14px}
+.save-slot{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:6px;background:var(--cozy-warm);border:1px dashed var(--cozy-khaki);border-radius:8px;transition:all var(--transition-bounce)}
+.save-slot:hover{border-style:solid;border-color:var(--cozy-brown);transform:scale(1.02)}
+.save-slot .slot-info{flex:1;min-width:0}
+.save-slot .slot-name{font-size:0.72rem;color:var(--cozy-brown);font-family:var(--font-display)}
+.save-slot .slot-meta{font-size:0.6rem;color:var(--text-dim);margin-top:2px}
+.save-slot .slot-actions{display:flex;gap:4px;flex-shrink:0}
+.save-slot button{padding:4px 10px;font-size:0.62rem;background:var(--cozy-cream);border:1px solid var(--cozy-khaki);color:var(--cozy-brown);cursor:pointer;border-radius:6px;font-family:var(--font-display);transition:all var(--transition-bounce)}
+.save-slot button:hover{background:var(--cozy-warm);border-color:var(--cozy-brown);transform:scale(1.05)}
+#save-modal .modal-close{display:block;margin:14px auto 0;padding:6px 22px;background:var(--cozy-warm);border:1.5px solid var(--cozy-khaki);color:var(--cozy-brown);cursor:pointer;border-radius:8px;font-family:var(--font-display);transition:all var(--transition-bounce)}
+#save-modal .modal-close:hover{background:var(--cozy-cream);border-color:var(--cozy-brown)}
+@keyframes shake{0%,100%{transform:translateX(0)}10%,50%,90%{transform:translateX(-3px)}30%,70%{transform:translateX(3px)}}
+.shaking{animation:shake 0.4s ease-out}
+@media(max-width:768px){
+  #game-container{padding:8px 10px 12px}
+  #stats-bar{padding:8px 10px}
+  .stat-label{font-size:0.65rem}
+  .stat-icon{font-size:1rem}
+  .stat-value{font-size:0.85rem}
+  #dialog-area{padding:12px 14px 10px;min-height:80px}
+  #dialog-text{font-size:0.85rem;line-height:1.7}
+  #choices-overlay{padding:8px 10px 14px}
+  .choice-btn{font-size:0.82rem;padding:10px 14px}
+  #start-game-btn{font-size:1.8rem;padding:10px 30px;width:70%}
+  #save-modal .modal-inner{padding:16px;min-width:auto}
+}
+@media(max-width:400px){
+  .stat-label{font-size:0.55rem}
+  .stat-value{font-size:0.75rem}
+  #title-bar{padding:6px 8px}
+}
+@keyframes flashIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes flashOut{from{opacity:1}to{opacity:0}}
+</style>
+</head>
+<body>
+<!-- 🔥 手机尺寸框：所有内容在 375x812 内 -->
+<div id="phone-frame">
+
+<!-- 背景层 -->
+<div id="bg-layer"></div>
+<div id="scanlines"></div>
+
+<!-- 游戏主内容包裹层 -->
+<div id="game-content-wrapper">
+
+    <!-- 视频启动页 -->
+    <div id="game-start-cover">
+        <video id="cover-video" autoplay loop muted playsinline webkit-playsinline
+               x5-video-player-type="h5" x5-video-orientation="portrait"
+               style="background:#3E2C20;">
+            <source src="intro.mp4" type="video/mp4">
+        </video>
+        <div id="cover-btn-area">
+            <button id="start-game-btn">开始游戏</button>
+        </div>
+    </div>
+
+    <!-- 序幕视频叠加层（点击开始后播放） -->
+    <div id="prologue-overlay">
+        <video id="prologue-video" src="序章视频.mp4" playsinline webkit-playsinline></video>
+        <div id="prologue-text-area">
+            <p class="prologue-line">周五晚上7点，辅导员办公室。<br>窗外天色渐暗，你正准备收拾东西下班。</p>
+            <p class="prologue-line">手机屏幕亮起：来电显示"王离谱"。</p>
+            <p class="prologue-line">你盯着这个名字看了三秒，<br>脑子里已经自动浮现出他之前23次请假的光辉记录。</p>
+            <p class="prologue-line">深吸一口气，接通。</p>
+        </div>
+        <button id="prologue-skip">跳过 ▸</button>
+    </div>
+
+    <!-- 游戏主体（默认隐藏） -->
+    <div id="main-game" style="display:none;">
+    <div id="game-container" style="opacity:0;visibility:hidden">
+  <div id="title-bar">
+    <div id="game-title">深夜值班室</div>
+    <div id="title-actions">
+      <button class="title-btn" onclick="openSaveModal('save')">存档</button>
+      <button class="title-btn" onclick="openSaveModal('load')">读档</button>
+      <button class="title-btn" onclick="restartGame()">重开</button>
+    </div>
+  </div>
+  <div id="stats-bar">
+    <div class="stat-group">
+      <div class="stat-item"><span class="stat-icon">👾</span><span class="stat-label">离谱度</span><div class="stat-bar-wrap"><div class="stat-bar-fill lipudicity" id="stat-lipudicity" style="width:85%"></div></div><span class="stat-value" id="val-lipudicity">85</span></div>
+      <div class="stat-item"><span class="stat-icon">💗</span><span class="stat-label">血压</span><div class="stat-bar-wrap" id="bp-wrap"><div class="stat-bar-fill blood-pressure" id="stat-blood-pressure" style="width:95%"></div></div><span class="stat-value" id="val-blood-pressure">95</span></div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-item"><span class="stat-icon">🏆</span><span class="stat-label">演技值</span><div class="stat-bar-wrap"><div class="stat-bar-fill acting" id="stat-acting" style="width:75%"></div></div><span class="stat-value" id="val-acting">75</span></div>
+      <div class="stat-item"><span class="stat-icon">📋</span><span class="stat-label">权威值</span><div class="stat-bar-wrap"><div class="stat-bar-fill authority" id="stat-authority" style="width:50%"></div></div><span class="stat-value" id="val-authority">50</span></div>
+    </div>
+  </div>
+  <div id="scene-area">
+    <div id="media-container"></div>
+  </div>
+  <div id="dialog-area">
+    <div id="character-tag"></div>
+    <div id="dialog-text"></div>
+    <div id="continue-hint">▼ 点击继续</div>
+  </div>
+  <div id="choices-overlay"></div>
+</div>
+
+<div id="ending-screen">
+  <div class="ending-grade" id="ending-grade"></div>
+  <div class="ending-title" id="ending-title"></div>
+  <div class="ending-text" id="ending-text"></div>
+  <div class="ending-stats" id="ending-stats"></div>
+  <button id="ending-restart-btn" onclick="restartGame()">重新开始</button>
+</div>
+
+<div id="save-modal">
+  <div class="modal-inner">
+    <h3 id="save-modal-title">存档</h3>
+    <div id="save-slots"></div>
+    <button class="modal-close" onclick="closeSaveModal()">关闭</button>
+  </div>
+</div>
+
+</div>
+<!-- end game-container -->
+</div>
+<!-- end main-game -->
+</div>
+<!-- end game-content-wrapper -->
+</div>
+<!-- end phone-frame -->
+
+<script src="dialogue-parser.js"></script>
+<script src="game-data.js"></script>
+<script>
+/* ============================================================
+   VISUAL NOVEL ENGINE
+   ============================================================ */
+class VisualNovelEngine {
+  constructor(data) {
+    this.data = data;
+    this.vars = { ...data.initialVariables };
+    this.characters = {};
+    data.characters.forEach(c => { this.characters[c.id] = c; });
+    this.events = data.timeline;
+    this.labels = {};
+    this.currentIndex = 0;
+    this.isRunning = false;
+    this.isTyping = false;
+    this.typingResolve = null;
+    this.choiceResolve = null;
+    this.skipTyping = false;
+    this.events.forEach((ev, i) => { if (ev.type === 'label') this.labels[ev.id] = i; });
+  }
+
+  getVar(name) { return this.vars[name]; }
+
+  setVar(name, value, op = '=', min = null, max = null) {
+    const old = this.vars[name] ?? 0;
+    let result;
+    switch (op) {
+      case '+=': result = old + value; break;
+      case '-=': result = old - value; break;
+      case '*=': result = old * value; break;
+      case '/=': result = value !== 0 ? old / value : old; break;
+      default: result = value;
+    }
+    if (min !== null) result = Math.max(min, result);
+    if (max !== null) result = Math.min(max, result);
+    this.vars[name] = typeof old === 'boolean' ? Boolean(result) : (typeof old === 'number' ? result : String(result));
+    const stats = ['lipudicity', 'blood_pressure', 'acting', 'authority'];
+    if (stats.includes(name)) this.vars[name] = Math.max(0, Math.min(100, this.vars[name]));
+    return this.vars[name];
+  }
+
+  applySetVariables(setArray) {
+    if (!setArray) return;
+    setArray.forEach(s => this.setVar(s.name, s.value, s.operation, s.min, s.max));
+  }
+
+  applySetFlag(flags) {
+    if (!flags) return;
+    Object.entries(flags).forEach(([k, v]) => { this.vars[k] = v; });
+  }
+
+  evaluateCondition(cond) {
+    if (!cond) return true;
+    const val = this.vars[cond.name];
+    const target = cond.value;
+    let result;
+    switch (cond.comparison) {
+      case '==': result = val == target; break;
+      case '!=': result = val != target; break;
+      case '>': result = val > target; break;
+      case '<': result = val < target; break;
+      case '>=': result = val >= target; break;
+      case '<=': result = val <= target; break;
+      default: result = false;
+    }
+    if (result && cond.additional) result = this.evaluateCondition(cond.additional);
+    return result;
+  }
+
+  evaluateConditions(conditions) {
+    const useOr = conditions.some(c => c.use_or);
+    if (useOr) return conditions.some(c => this.evaluateCondition(c));
+    return conditions.every(c => this.evaluateCondition(c));
+  }
+
+  async run(ui) {
+    this.ui = ui;
+    this.isRunning = true;
+    let index = 0;
+    while (index < this.events.length && this.isRunning) {
+      const event = this.events[index];
+      switch (event.type) {
+        case 'text':
+          await this.ui.showDialog(event);
+          index++;
+          break;
+        case 'choice': {
+          const chosen = await this.ui.showChoices(event);
+          if (chosen === null) { this.isRunning = false; return; }
+          if (chosen.set_variables) this.applySetVariables(chosen.set_variables);
+          if (chosen.set_flag) this.applySetFlag(chosen.set_flag);
+          index = this.labels[chosen.goto_id];
+          if (index === undefined) { console.error('Label not found:', chosen.goto_id); this.isRunning = false; return; }
+          break;
+        }
+        case 'label': index++; break;
+        case 'goto':
+          index = this.labels[event.goto_id];
+          if (index === undefined) { console.error('Label not found:', event.goto_id); this.isRunning = false; return; }
+          break;
+        case 'set_variable': this.applySetVariables(event.set); index++; break;
+        case 'condition':
+          if (this.evaluateConditions(event.conditions)) {
+            index = this.labels[event.then_goto];
+          } else if (event.else_goto) {
+            index = this.labels[event.else_goto];
+          } else { index++; }
+          if (index === undefined) { console.error('Label not found in condition'); this.isRunning = false; return; }
+          break;
+        case 'end':
+          stopBGM();
+          await this.ui.showEnding(event);
+          this.isRunning = false;
+          return;
+        default: index++;
+      }
+      this.ui.updateStats(this.vars);
+    }
+  }
+
+  stop() { this.isRunning = false; if (this.typingResolve) this.typingResolve(); if (this.choiceResolve) this.choiceResolve(null); }
+}
+
+/* ============================================================
+   UI CONTROLLER
+   ============================================================ */
+class UIController {
+  constructor() {
+    this.gameContainer = document.getElementById('game-container');
+    this.dialogArea = document.getElementById('dialog-area');
+    this.characterTag = document.getElementById('character-tag');
+    this.dialogText = document.getElementById('dialog-text');
+    this.continueHint = document.getElementById('continue-hint');
+    this.choicesOverlay = document.getElementById('choices-overlay');
+    this.portraitPlaceholder = null;
+    this.portraitImg = null;
+    this.portraitFallback = null;
+    this.charNameOverlay = null;
+    this.mediaContainer = document.getElementById('media-container');
+    this.endingScreen = document.getElementById('ending-screen');
+    this.stats = {
+      lipudicity: { fill: document.getElementById('stat-lipudicity'), val: document.getElementById('val-lipudicity') },
+      blood_pressure: { fill: document.getElementById('stat-blood-pressure'), val: document.getElementById('val-blood-pressure'), wrap: document.getElementById('bp-wrap') },
+      acting: { fill: document.getElementById('stat-acting'), val: document.getElementById('val-acting') },
+      authority: { fill: document.getElementById('stat-authority'), val: document.getElementById('val-authority') }
+    };
+    this._clickResolve = null;
+    this._choiceResolve = null;
+    this._typingTimer = null;
+    this._fullText = '';
+    this.setupListeners();
+  }
+
+  setupListeners() {
+    const clickHandler = (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+      if (this._choiceResolve) return;
+      if (this._clickResolve) {
+        if (this._typingTimer) { this.skipTyping(); }
+        else { const r = this._clickResolve; this._clickResolve = null; this._typingTimer = null; r(); }
+      }
+    };
+    document.addEventListener('click', clickHandler);
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        if (this._choiceResolve) return;
+        if (this._clickResolve) {
+          e.preventDefault();
+          if (this._typingTimer) { this.skipTyping(); }
+          else { const r = this._clickResolve; this._clickResolve = null; this._typingTimer = null; r(); }
+        }
+      }
+    });
+  }
+
+  skipTyping() {
+    if (this._typingTimer) { clearTimeout(this._typingTimer); this._typingTimer = null; }
+    this.dialogText.textContent = this._fullText;
+    const cursor = this.dialogText.querySelector('.cursor-blink');
+    if (cursor) cursor.remove();
+    this.showContinueHint();
+  }
+
+  showDialog(event) {
+    return new Promise(resolve => {
+      this._clickResolve = resolve;
+      this.hideChoices();
+      this.hideContinueHint();
+      const charId = event.character || '';
+      this.characterTag.className = charId;
+      this.dialogArea.className = charId;
+      this.characterTag.textContent = this.getCharName(charId);
+      this.updatePortrait(charId, event.portrait);
+      this.updateMedia(event);
+      this._fullText = event.text || '';
+      this.typeText(this._fullText);
+    });
+  }
+
+  getCharName(id) {
+    const names = { advisor: '陈老师', wang: '王离谱', lisiran: '李思然', narrator: '系统', roommate: '室友' };
+    return names[id] || id;
+  }
+
+  getCharEmoji(id) {
+    const emojis = { advisor: '👨‍🏫', wang: '🤪', lisiran: '👩‍🎓', narrator: '💻', roommate: '🛏️' };
+    return emojis[id] || '👤';
+  }
+
+  updatePortrait(charId, portraitUrl) {
+    // 中央肖像区已移除，保留空方法防止报错
+  }
+
+  updateMedia(event) {
+    this.mediaContainer.innerHTML = '';
+    if (event.image) { const img = document.createElement('img'); img.src = event.image; img.alt = '场景图片'; img.loading = 'lazy'; this.mediaContainer.appendChild(img); }
+    if (event.images && event.images.length) {
+      const row = document.createElement('div'); row.className = 'dual-row';
+      event.images.forEach(function(im) { const img = document.createElement('img'); img.src = im.src; img.className = im.class || ''; row.appendChild(img); });
+      this.mediaContainer.appendChild(row);
+    }
+    if (event.video) { const video = document.createElement('video'); video.src = event.video; video.controls = true; video.playsInline = true; this.mediaContainer.appendChild(video); }
+    if (event.background) { const bg = document.getElementById('bg-layer'); bg.style.background = `#c0c0c0 url(${event.background}) center/cover no-repeat`; }
+    else if (event.images) { document.getElementById('bg-layer').style.background = ''; }
+    if (event.bgm) { switchBGM(event.bgm); }
+  }
+
+  typeText(text) {
+    this.dialogText.textContent = '';
+    this.hideContinueHint();
+    const chars = [...text];
+    let i = 0;
+    const baseDelay = 35;
+    const type = () => {
+      if (i < chars.length) {
+        this.dialogText.textContent += chars[i];
+        i++;
+        const ch = chars[i-1] || '';
+        const delay = '，。！？；：、\n'.includes(ch) ? baseDelay * 3 : ',.?!;:\n'.includes(ch) ? baseDelay * 2 : baseDelay;
+        this._typingTimer = setTimeout(type, delay);
+      } else {
+        this._typingTimer = null;
+        this.showContinueHint();
+      }
+    };
+    type();
+  }
+
+  showContinueHint() { this.continueHint.classList.add('visible'); }
+  hideContinueHint() { this.continueHint.classList.remove('visible'); }
+
+  showChoices(event) {
+    return new Promise(resolve => {
+      this._choiceResolve = resolve;
+      this.hideContinueHint();
+      this._clickResolve = null;
+      if (this._typingTimer) { clearTimeout(this._typingTimer); this._typingTimer = null; }
+      this.choicesOverlay.innerHTML = '';
+      if (event.text) {
+        const prompt = document.createElement('div');
+        prompt.style.cssText = 'font-size:0.8rem;color:var(--text-dim);margin-bottom:4px;letter-spacing:0.04em;';
+        prompt.textContent = event.text;
+        this.choicesOverlay.appendChild(prompt);
+      }
+      const engine = window._engine;
+      let visibleIndex = 0;
+      event.choices.forEach((choice) => {
+        if (choice.condition && !engine.evaluateCondition(choice.condition)) return;
+        visibleIndex++;
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span class="choice-number">${visibleIndex}</span>${choice.text}`;
+        btn.addEventListener('click', (e) => { e.stopPropagation(); this._choiceResolve = null; resolve(choice); });
+        this.choicesOverlay.appendChild(btn);
+      });
+      this.choicesOverlay.classList.add('active');
+      if (this.choicesOverlay.children.length <= (event.text ? 1 : 0)) { this._choiceResolve = null; resolve(event.choices[0]); }
+    });
+  }
+
+  hideChoices() { this.choicesOverlay.classList.remove('active'); this.choicesOverlay.innerHTML = ''; this._choiceResolve = null; }
+
+  showEnding(event) {
+    return new Promise(resolve => {
+      this.hideChoices(); this.hideContinueHint();
+      // 继承底层背景图，让 A/B 结局画面透出专属背景
+      const bgLayer = document.getElementById('bg-layer');
+      const inlineBg = bgLayer.style.background || '';
+      const urlMatch = inlineBg.match(/url\(["']?([^"')]+)["']?\)/);
+      if (urlMatch) {
+        this.endingScreen.style.backgroundImage = 'url("' + urlMatch[1] + '")';
+      }
+      const grade = event.ending_grade || '?';
+      const title = event.ending_title || '未知';
+      document.getElementById('ending-grade').textContent = grade + '级结局';
+      document.getElementById('ending-grade').style.color = grade === 'S' ? '#ffcc66' : grade === 'HIDDEN' ? '#ff88cc' : grade === 'A' ? '#ff9944' : '#8888aa';
+      document.getElementById('ending-title').textContent = '—— ' + title + ' ——';
+      document.getElementById('ending-text').textContent = '';
+      const stats = window._engine.vars;
+      document.getElementById('ending-stats').textContent = `最终数据 | 离谱度:${Math.round(stats.lipudicity)} 血压:${Math.round(stats.blood_pressure)} 演技值:${Math.round(stats.acting)} 权威值:${Math.round(stats.authority)}`;
+      this.endingScreen.classList.add('active');
+      this._endingResolve = resolve;
+    });
+  }
+
+  hideEnding() { this.endingScreen.classList.remove('active'); }
+
+  updateStats(vars) {
+    ['lipudicity', 'blood_pressure', 'acting', 'authority'].forEach(key => {
+      const val = Math.max(0, Math.min(100, Math.round(vars[key] || 0)));
+      const s = this.stats[key];
+      if (s.fill) s.fill.style.width = val + '%';
+      if (s.val) s.val.textContent = val;
+    });
+    const bpWrap = this.stats.blood_pressure.wrap;
+    if (bpWrap) { if (vars.blood_pressure > 80) bpWrap.classList.add('danger'); else bpWrap.classList.remove('danger'); }
+    if (vars.blood_pressure > 90) { this.gameContainer.classList.add('shaking'); setTimeout(() => this.gameContainer.classList.remove('shaking'), 400); }
+  }
+
+  showGame() { this.gameContainer.style.opacity = '1'; this.gameContainer.style.visibility = 'visible'; }
+  hideGame() { this.gameContainer.style.opacity = '0'; this.gameContainer.style.visibility = 'hidden'; }
+}
+
+/* ============================================================
+   SAVE/LOAD MANAGER
+   ============================================================ */
+class SaveManager {
+  static STORAGE_KEY = 'visual_novel_advisor_saves';
+  static MAX_SLOTS = 6;
+
+  static getSaves() { try { const raw = localStorage.getItem(this.STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+
+  static save(slotIndex, engine) {
+    const saves = this.getSaves();
+    saves[slotIndex] = {
+      vars: JSON.parse(JSON.stringify(engine.vars)),
+      index: engine.currentIndex,
+      timestamp: new Date().toISOString(),
+      dialogPreview: (() => {
+        for (let i = engine.currentIndex - 1; i >= 0; i--) {
+          if (engine.events[i].type === 'text') return engine.events[i].text.substring(0, 40);
+        }
+        return '游戏开始';
+      })()
+    };
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(saves));
+    return true;
+  }
+
+  static load(slotIndex, engine) {
+    const saves = this.getSaves();
+    const data = saves[slotIndex];
+    if (!data) return false;
+    engine.vars = data.vars;
+    engine.currentIndex = data.index;
+    return data;
+  }
+
+  static deleteSave(slotIndex) {
+    const saves = this.getSaves();
+    delete saves[slotIndex];
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(saves));
+  }
+}
+
+/* ============================================================
+   GLOBAL STATE & INIT
+   ============================================================ */
+let engine = null;
+let ui = null;
+let saveMode = 'save';
+
+function startGame() {
+  try {
+    const startCover = document.getElementById('game-start-cover');
+    const prologue = document.getElementById('prologue-overlay');
+    const prologueVideo = document.getElementById('prologue-video');
+    const prologueSkip = document.getElementById('prologue-skip');
+    const mainGame = document.getElementById('main-game');
+
+    // 创建引擎和 UI
+    createEngine();
+    ui = new UIController();
+    engine.ui = ui;
+
+    // 淡出开始界面
+    startCover.style.transition = 'opacity 0.5s ease';
+    startCover.style.opacity = '0';
+
+    // 过渡结束后播放序幕
+    setTimeout(() => {
+      startCover.style.display = 'none';
+
+      // 显示序幕视频 + 文字
+      prologue.classList.add('active');
+      prologueVideo.currentTime = 0;
+      prologueVideo.play().catch(() => {});
+
+      // 序幕结束 → 进入游戏
+      var goToGame = function() {
+        prologueVideo.removeEventListener('ended', goToGame);
+        prologueSkip.removeEventListener('click', goToGame);
+        prologueVideo.pause();
+        prologue.style.transition = 'opacity 0.5s ease';
+        prologue.style.opacity = '0';
+        setTimeout(function() {
+          prologue.classList.remove('active');
+          prologue.style.display = 'none';
+          mainGame.style.display = 'block';
+          beginGameplay();
+        }, 500);
+      };
+
+      prologueVideo.addEventListener('ended', goToGame);
+      prologueSkip.addEventListener('click', goToGame);
+    }, 500);
+  } catch (err) {
+    console.error('启动失败:', err);
+    document.body.insertAdjacentHTML('beforeend',
+      '<div style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);color:#f0a050;font-size:18px;font-family:sans-serif;text-align:center;padding:30px;">哎呀，出错了，请重启试试吧~</div>');
+  }
+}
+
+function beginGameplay() {
+  ui.showGame();
+  ui.updateStats(engine.vars);
+  setTimeout(() => { engine.run(ui).catch(err => console.error('Game engine error:', err)); }, 300);
+}
+
+// ---- 背景音乐 ----
+var bgm = new Audio('bgm happy.mp3');
+bgm.loop = true;
+bgm.volume = 0.6;
+function startBGM() {
+  if (!bgm.paused) return;
+  bgm.play().then(function() {
+    console.log('🎵 BGM 开始播放');
+  }).catch(function(e) {
+    console.log('⚠️ BGM 播放失败:', e.message);
+  });
+}
+function stopBGM() {
+  if (!bgm || bgm.paused) return;
+  var vol = bgm.volume;
+  var step = vol / 30;
+  var timer = setInterval(function() {
+    vol = Math.max(0, vol - step);
+    bgm.volume = vol;
+    if (vol <= 0) { clearInterval(timer); bgm.pause(); }
+  }, 100);
+}
+
+var currentBGM = null;
+function switchBGM(src) {
+  if (currentBGM && !currentBGM.paused) {
+    // 淡出当前 BGM
+    var old = currentBGM;
+    var vol = old.volume;
+    var step = vol / 20;
+    var timer = setInterval(function() {
+      vol = Math.max(0, vol - step);
+      old.volume = vol;
+      if (vol <= 0) { clearInterval(timer); old.pause(); }
+    }, 80);
+  }
+  if (src) {
+    var audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = 0;
+    audio.play().then(function() {
+      // 淡入新 BGM
+      var targetVol = 0.5;
+      var fadeIn = setInterval(function() {
+        var v = Math.min(targetVol, audio.volume + 0.03);
+        audio.volume = v;
+        if (v >= targetVol) clearInterval(fadeIn);
+      }, 80);
+    }).catch(function(e) {
+      console.log('BGM 切换失败:', e.message);
+    });
+    currentBGM = audio;
+  } else {
+    currentBGM = null;
+  }
+  // 同步更新全局 bgm 引用（用于 stopBGM / restartGame）
+  bgm = currentBGM || new Audio();
+}
+
+function restartGame() {
+  if (engine) engine.stop();
+  stopBGM(); if (currentBGM) { currentBGM.pause(); currentBGM = null; }
+  bgm = new Audio('bgm happy.mp3'); bgm.loop = true; bgm.volume = 0.6;
+  ui.hideEnding();
+  createEngine();
+  engine.ui = ui;
+  ui.updateStats(engine.vars);
+  ui.hideChoices(); ui.hideContinueHint();
+  ui.dialogText.textContent = '';
+  ui.characterTag.textContent = ''; ui.characterTag.innerHTML = ''; ui.characterTag.className = '';
+  ui.dialogArea.className = '';
+  ui.mediaContainer.innerHTML = '';
+  setTimeout(() => { engine.run(ui).catch(err => console.error('Game engine error:', err)); }, 300);
+}
+
+function openSaveModal(mode) {
+  saveMode = mode;
+  const modal = document.getElementById('save-modal');
+  document.getElementById('save-modal-title').textContent = mode === 'save' ? '💾 存档' : '📂 读档';
+  const slotsContainer = document.getElementById('save-slots');
+  const saves = SaveManager.getSaves();
+  slotsContainer.innerHTML = '';
+  for (let i = 0; i < SaveManager.MAX_SLOTS; i++) {
+    const save = saves[i];
+    const slot = document.createElement('div');
+    slot.className = 'save-slot';
+    slot.innerHTML = `<div class="slot-info"><div class="slot-name">存档位 ${i + 1}</div><div class="slot-meta">${save ? (save.dialogPreview || '') + '... — ' + new Date(save.timestamp).toLocaleString('zh-CN') : '空'}</div></div><div class="slot-actions">${mode === 'save' ? `<button onclick="saveToSlot(${i})">保存</button>` : ''}${save && mode === 'load' ? `<button onclick="loadFromSlot(${i})">读取</button>` : ''}${save ? `<button onclick="deleteSlot(${i})" style="border-color:rgba(255,85,68,0.3);color:#ff5544;">删</button>` : ''}</div>`;
+    slotsContainer.appendChild(slot);
+  }
+  modal.classList.add('active');
+}
+
+function closeSaveModal() { document.getElementById('save-modal').classList.remove('active'); }
+
+function saveToSlot(index) { if (!engine) return; SaveManager.save(index, engine); closeSaveModal(); flashMessage('已保存到存档位 ' + (index + 1)); }
+
+function loadFromSlot(index) {
+  if (!engine || !ui) return;
+  engine.stop(); ui.hideEnding();
+  const data = SaveManager.load(index, engine);
+  if (data) {
+    closeSaveModal(); ui.hideChoices(); ui.hideContinueHint(); ui.updateStats(engine.vars);
+    flashMessage('已读取存档位 ' + (index + 1));
+    setTimeout(() => { engine.ui = ui; engine.isRunning = true; engine.run(ui).catch(err => console.error('Game engine error:', err)); }, 300);
+  }
+}
+
+function deleteSlot(index) { SaveManager.deleteSave(index); openSaveModal(saveMode); }
+
+function flashMessage(msg) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:200;padding:8px 24px;background:rgba(0,0,0,0.85);border:1px solid var(--accent-amber);color:var(--accent-amber);font-family:var(--font-body);font-size:0.85rem;border-radius:4px;letter-spacing:0.04em;animation:flashIn 0.3s ease-out,flashOut 0.3s 1.5s ease-in forwards;pointer-events:none;';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function createEngine() {
+  engine = new VisualNovelEngine(GAME_DATA);
+  window._engine = engine;
+}
+
+// ---- 手机框缩放适配 ----
+function resizeGame() {
+  const frame = document.getElementById('phone-frame');
+  if (!frame) return;
+  const ww = window.innerWidth;
+  const wh = window.innerHeight;
+  const DW = 375, DH = 812;
+  const scale = Math.min(ww / DW, wh / DH);
+  frame.style.transform = `scale(${scale})`;
+  frame.style.left = (ww - DW * scale) / 2 + 'px';
+  frame.style.top = (wh - DH * scale) / 2 + 'px';
+}
+window.addEventListener('resize', resizeGame);
+window.addEventListener('load', resizeGame);
+
+// ---- 全局错误处理 ----
+window.addEventListener('error', function(e) {
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);color:#f0a050;font-size:18px;font-family:sans-serif;text-align:center;padding:30px;';
+  msg.textContent = '哎呀，出错了，请重启试试吧~';
+  document.body.appendChild(msg);
+  console.error('全局错误:', e.error || e.message);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    createEngine();
+    resizeGame();
+
+    // 移动端视频自动播放兼容
+    var cv = document.getElementById('cover-video');
+    if (cv) {
+      cv.play().then(function(){ console.log('视频播放成功'); }).catch(function(){
+        console.log('视频自动播放被阻，显示按钮');
+        cv.style.display = 'none';
+        document.getElementById('game-start-cover').style.background = '#3E2C20';
+      });
+    }
+
+    // 开始按钮点击事件 — 淡出视频封面，进入游戏
+    const startBtn = document.getElementById('start-game-btn');
+    if (startBtn) {
+      startBtn.addEventListener('click', startGame);
+    }
+
+    console.log('🎭 《导员，你听我狡辩！》视觉小说已就绪');
+    console.log('   — 第一案：消失的晚自习 —');
+    console.log('   📱 375x812 手机框自适应 · 纯离线');
+  } catch (err) {
+    console.error('初始化失败:', err);
+    const msg = document.createElement('div');
+    msg.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);color:#f0a050;font-size:18px;font-family:sans-serif;text-align:center;padding:30px;';
+    msg.textContent = '哎呀，出错了，请重启试试吧~';
+    document.body.appendChild(msg);
+  }
+});
+</script>
+</body>
+</html>
