@@ -707,7 +707,7 @@ const GAME_DATA = {
       ] },
     { type: "text", character: "narrator",
       text: `【S级结局·灵魂导师】\n\n挂断电话后，你起身走到窗边。校园里的路灯次第亮起，远处图书馆三楼的灯光格外明亮。\n\n你端起保温杯，在便签纸上写了一行字："本学期感化学生数：+1。"然后贴在墙上。那是你当辅导员第五年来，第十八张便签。\n\n王离谱的朋友圈（三天后）：\n"图书馆的灯好亮。她的侧脸好美。《白夜》没读懂，但她给我讲了。原来那个结局不是关于错过，而是关于——'至少我们相遇过'。\n另外感谢我导员。虽然我没明说，但你是世界上第二个理解我的人。第一个是我妈。"`,
-      background: "office-bg.webp" ,
+      background: "jinpai.webp" ,
       images: [
         { src: "ai.webp", class: "char-left-standalone" }
       ]
