@@ -310,9 +310,6 @@ html, body {
 
     <!-- 视频启动页 -->
     <div id="game-start-cover">
-        <div id="cover-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;background:#3E2C20;">
-            <div style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:rgba(255,255,255,0.5);font-size:14px;letter-spacing:0.1em;">加载中...</div>
-        </div>
         <video id="cover-video" autoplay loop muted playsinline webkit-playsinline
                x5-video-player-type="h5" x5-video-orientation="portrait"
                preload="auto"
@@ -1027,51 +1024,19 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('预加载 ' + unique.length + ' 张游戏图片');
     })();
 
-    // 视频预加载：等待 cover 视频可播放后再显示按钮
-    var cv = document.getElementById('cover-video');
-    var coverLoading = document.getElementById('cover-loading');
+    // 按钮始终可见，封面视频后台加载，不阻塞游戏入口
     var videoStartBtn = document.getElementById('start-game-btn');
+    if (videoStartBtn) videoStartBtn.style.display = '';
+
+    var coverLoading = document.getElementById('cover-loading');
+    if (coverLoading) coverLoading.style.display = 'none';
+
+    var cv = document.getElementById('cover-video');
     if (cv) {
-      // 初始隐藏按钮，显示加载提示
-      if (videoStartBtn) videoStartBtn.style.display = 'none';
-
-      var onVideoReady = function() {
-        if (coverLoading) coverLoading.style.display = 'none';
-        if (videoStartBtn) videoStartBtn.style.display = '';
-        // 尝试自动播放，若被阻止按钮仍在
-        cv.play().then(function(){ console.log('视频播放成功'); }).catch(function(){
-          console.log('视频自动播放被阻，显示按钮');
-        });
-      };
-
-      // 视频已足够数据可播放
-      if (cv.readyState >= 3) {
-        onVideoReady();
-      } else {
-        cv.addEventListener('canplaythrough', onVideoReady, { once: true });
-        cv.addEventListener('loadeddata', onVideoReady, { once: true });
-      }
-
-      // 加载失败也显示按钮
+      cv.play().catch(function() {});
       cv.addEventListener('error', function() {
-        if (coverLoading) coverLoading.style.display = 'none';
-        if (videoStartBtn) { videoStartBtn.style.display = ''; }
         document.getElementById('game-start-cover').style.background = '#3E2C20';
-        cv.style.display = 'none';
       }, { once: true });
-
-      // 超时兜底：5秒后无论是否加载完成都显示按钮 + 静态背景
-      setTimeout(function() {
-        if (coverLoading) coverLoading.style.display = 'none';
-        if (videoStartBtn) {
-          if (videoStartBtn.style.display === 'none') {
-            videoStartBtn.style.display = '';
-            // 视频未能加载，设置静态背景
-            document.getElementById('game-start-cover').style.background = '#3E2C20';
-            cv.style.display = 'none';
-          }
-        }
-      }, 5000);
     }
 
     // 开始按钮点击事件 — 淡出视频封面，进入游戏
