@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preload" as="video" href="prologue.mp4">
+<link rel="preload" as="audio" href="bgm happy.mp3">
 <title>导员，你听我狡辩！——第一案：消失的晚自习</title>
 <style>
 
@@ -833,15 +835,24 @@ function beginGameplay() {
   setTimeout(() => { engine.run(ui).catch(err => console.error('Game engine error:', err)); }, 300);
 }
 
-// ---- 背景音乐 ----
-var bgm = new Audio('bgm happy.mp3');
-bgm.loop = true;
-bgm.volume = 0.6;
-bgm.load(); // 立即开始下载，不等待播放
+// ---- 背景音乐（预加载 + 复用，避免重复下载）----
+var _audioCache = {};
+function _preloadAudio(src) {
+  if (!_audioCache[src]) {
+    var a = new Audio();
+    a.src = src;
+    a.loop = true;
+    a.load();
+    _audioCache[src] = a;
+  }
+  return _audioCache[src];
+}
+_preloadAudio('bgm happy.mp3');
+_preloadAudio('sad.mp3');
 
-// 预加载 sad 音乐
-var _sadPreload = new Audio('sad.mp3');
-_sadPreload.load();
+var bgm = _audioCache['bgm happy.mp3'];
+bgm.volume = 0.6;
+
 function startBGM() {
   if (!bgm.paused) return;
   bgm.play().then(function() {
@@ -864,7 +875,6 @@ function stopBGM() {
 var currentBGM = null;
 function switchBGM(src) {
   if (currentBGM && !currentBGM.paused) {
-    // 淡出当前 BGM
     var old = currentBGM;
     var vol = old.volume;
     var step = vol / 20;
@@ -875,11 +885,11 @@ function switchBGM(src) {
     }, 80);
   }
   if (src) {
-    var audio = new Audio(src);
-    audio.loop = true;
+    // 复用预加载的 Audio，不再重复下载
+    var audio = _preloadAudio(src);
+    audio.currentTime = 0;
     audio.volume = 0;
     audio.play().then(function() {
-      // 淡入新 BGM
       var targetVol = 0.5;
       var fadeIn = setInterval(function() {
         var v = Math.min(targetVol, audio.volume + 0.03);
@@ -893,14 +903,13 @@ function switchBGM(src) {
   } else {
     currentBGM = null;
   }
-  // 同步更新全局 bgm 引用（用于 stopBGM / restartGame）
-  bgm = currentBGM || new Audio();
+  bgm = currentBGM || _audioCache['bgm happy.mp3'];
 }
 
 function restartGame() {
   if (engine) engine.stop();
   stopBGM(); if (currentBGM) { currentBGM.pause(); currentBGM = null; }
-  bgm = new Audio('bgm happy.mp3'); bgm.loop = true; bgm.volume = 0.6;
+  bgm = _audioCache['bgm happy.mp3']; bgm.volume = 0.6;
   ui.hideEnding();
   createEngine();
   engine.ui = ui;
