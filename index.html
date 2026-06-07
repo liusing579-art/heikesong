@@ -789,49 +789,35 @@ function startGame() {
     ui = new UIController();
     engine.ui = ui;
 
-    // 淡出开始界面
-    startCover.style.transition = 'opacity 0.5s ease';
-    startCover.style.opacity = '0';
+    // 立即切换到序幕，不等待淡出动画
+    startCover.style.display = 'none';
 
-    // 过渡结束后播放序幕
-    setTimeout(() => {
-      startCover.style.display = 'none';
+    // 序幕视频+文字立刻显示并播放
+    prologue.classList.add('active');
+    prologueVideo.currentTime = 0;
+    prologueVideo.play().then(function() {
+      console.log('序幕视频流畅播放');
+    }).catch(function(e) {
+      console.log('序幕播放失败:', e.message);
+    });
 
-      // 显示序幕视频 + 文字，确保缓冲充足再播放
-      prologue.classList.add('active');
-      prologueVideo.currentTime = 0;
-      function playPrologue() {
-        prologueVideo.play().then(function() {
-          console.log('序幕视频流畅播放');
-        }).catch(function(e) {
-          console.log('序幕播放失败:', e.message);
-        });
-      }
-      // 已缓冲足够数据 → 立即播放；否则等待
-      if (prologueVideo.readyState >= 3) {
-        playPrologue();
-      } else {
-        prologueVideo.addEventListener('canplay', playPrologue, { once: true });
-      }
+    // 序幕结束 → 进入游戏
+    var goToGame = function() {
+      prologueVideo.removeEventListener('ended', goToGame);
+      prologueSkip.removeEventListener('click', goToGame);
+      prologueVideo.pause();
+      prologue.style.transition = 'opacity 0.5s ease';
+      prologue.style.opacity = '0';
+      setTimeout(function() {
+        prologue.classList.remove('active');
+        prologue.style.display = 'none';
+        mainGame.style.display = 'block';
+        beginGameplay();
+      }, 500);
+    };
 
-      // 序幕结束 → 进入游戏
-      var goToGame = function() {
-        prologueVideo.removeEventListener('ended', goToGame);
-        prologueSkip.removeEventListener('click', goToGame);
-        prologueVideo.pause();
-        prologue.style.transition = 'opacity 0.5s ease';
-        prologue.style.opacity = '0';
-        setTimeout(function() {
-          prologue.classList.remove('active');
-          prologue.style.display = 'none';
-          mainGame.style.display = 'block';
-          beginGameplay();
-        }, 500);
-      };
-
-      prologueVideo.addEventListener('ended', goToGame);
-      prologueSkip.addEventListener('click', goToGame);
-    }, 500);
+    prologueVideo.addEventListener('ended', goToGame);
+    prologueSkip.addEventListener('click', goToGame);
   } catch (err) {
     console.error('启动失败:', err);
     document.body.insertAdjacentHTML('beforeend',
