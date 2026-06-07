@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="preload" as="video" href="prologue.mp4">
 <link rel="preload" as="audio" href="bgm happy.mp3">
 <title>导员，你听我狡辩！——第一案：消失的晚自习</title>
 <style>
@@ -781,6 +780,8 @@ let saveMode = 'save';
 function startGame() {
   try {
     const startCover = document.getElementById('game-start-cover');
+    var coverVideo = document.getElementById('cover-video');
+    if (coverVideo) { coverVideo.pause(); coverVideo.removeAttribute('src'); coverVideo.load(); }
     const prologue = document.getElementById('prologue-overlay');
     const prologueVideo = document.getElementById('prologue-video');
     const prologueSkip = document.getElementById('prologue-skip');
@@ -799,10 +800,22 @@ function startGame() {
     setTimeout(() => {
       startCover.style.display = 'none';
 
-      // 显示序幕视频 + 文字
+      // 显示序幕视频 + 文字，确保缓冲充足再播放
       prologue.classList.add('active');
       prologueVideo.currentTime = 0;
-      prologueVideo.play().catch(() => {});
+      function playPrologue() {
+        prologueVideo.play().then(function() {
+          console.log('序幕视频流畅播放');
+        }).catch(function(e) {
+          console.log('序幕播放失败:', e.message);
+        });
+      }
+      // 已缓冲足够数据 → 立即播放；否则等待
+      if (prologueVideo.readyState >= 3) {
+        playPrologue();
+      } else {
+        prologueVideo.addEventListener('canplay', playPrologue, { once: true });
+      }
 
       // 序幕结束 → 进入游戏
       var goToGame = function() {
