@@ -837,6 +837,11 @@ function beginGameplay() {
 var bgm = new Audio('bgm happy.mp3');
 bgm.loop = true;
 bgm.volume = 0.6;
+bgm.load(); // 立即开始下载，不等待播放
+
+// 预加载 sad 音乐
+var _sadPreload = new Audio('sad.mp3');
+_sadPreload.load();
 function startBGM() {
   if (!bgm.paused) return;
   bgm.play().then(function() {
@@ -983,6 +988,22 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     createEngine();
     resizeGame();
+
+    // 批量预加载游戏图片，确保后续图片即时显示
+    (function preloadGameImages() {
+      var sources = [];
+      GAME_DATA.timeline.forEach(function(evt) {
+        if (evt.background) sources.push(evt.background);
+        if (evt.image) sources.push(evt.image);
+        if (evt.images) evt.images.forEach(function(im) { sources.push(im.src); });
+      });
+      var unique = sources.filter(function(v, i, a) { return a.indexOf(v) === i; });
+      unique.forEach(function(src) {
+        var img = new Image();
+        img.src = src;
+      });
+      console.log('预加载 ' + unique.length + ' 张游戏图片');
+    })();
 
     // 视频预加载：等待 cover 视频可播放后再显示按钮
     var cv = document.getElementById('cover-video');
